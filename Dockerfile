@@ -75,6 +75,7 @@ ADD conf/joomla.conf /etc/nginx/conf/joomla.conf
 
 # joomla nginx vhost, will include joomla.conf
 ADD conf/joomla.vhost.template /tmp/joomla.vhost.template
+ADD conf/joomla.vhost.http.template /tmp/joomla.vhost.http.template
 
 # supervisord config, is supervising php5-fpm, nginx and mariaDb
 ADD conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
