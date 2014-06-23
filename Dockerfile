@@ -103,10 +103,6 @@ ADD secure-joomla.sh /tmp/secure-joomla.sh
 # It will setup the vhosts via given SERVER_NAME environment variable.
 ADD conf/setup-joomla-vhost.sh /tmp/setup-joomla-vhost.sh
 
-##########################################################################
-# Expose ssh port
-EXPOSE 22
-
 #########################################################################
 #	Volumes                                                          #
 #	- mysql data                                                     #
@@ -120,6 +116,7 @@ VOLUME ["/var/mysql"]
 VOLUME ["/var/www"]
 VOLUME ["/var/www/vhosts"]
 VOLUME ["/etc/nginx/sites-available"]
+VOLUME ["/etc/nginx/ssl"]
 VOLUME ["/etc/php5/fpm/pool.d"]
 
 # Add setup script.
@@ -127,6 +124,6 @@ ADD setup.sh /tmp/setup.sh
 # Make it executable for root
 RUN chmod u+rx /tmp/setup.sh;
 
-EXPOSE 443
+EXPOSE 22 443
 
 ENTRYPOINT ["/tmp/setup.sh"]

@@ -17,7 +17,7 @@ fi
 #	/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf#
 ########################################################################
 	 
-if [ $1 = "start"] ; then
+if [ $1 = "start" ]; then
   echo "Starting supervisord..."
   /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
   exit 0
@@ -195,6 +195,7 @@ fi
 #       - vhosts                                                          #
 #       - ssl                                                             #
 #       - mysql                                                           #
+#	- php-fpm pool configurations
 #	is present in /tmp/, mounted via VOLUME´s.                        #
 ###########################################################################
 
@@ -222,6 +223,10 @@ if [ -d /tmp/mysql ]; then
   rm --interactive=never -R /tmp/mysql
 fi
 
+if [ -d /tmp/php-fpm-pools ]; then
+  echo "Copy everything from /tmp/php-fpm-pools to /etc/php5/fpm/pool.d/"
+  cp -R /tmp/php-fpm-pools/* /etc/php5/fpm/pool.d/
+fi
 
 ###########################################################################
 #       Removing default in sites-enabled                                 #
