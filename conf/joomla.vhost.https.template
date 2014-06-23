@@ -1,0 +1,122 @@
+server {
+  listen 443 ssl;
+  server_name {{SERVER_NAME}};
+  #server_tokens off;
+  ssl on;
+  ssl_certificate 	{{SSL_CRT}};
+  ssl_certificate_key 	{{SSL_KEY}};
+  ssl_protocols	SSLv3 TLSv1 TLSv1.2;
+  ssl_ciphers 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4';
+
+  #ssl_session_cache builtin:1000 shared:SSL:10m;
+  ## Strong SSL Security
+  ## https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+  ssl_dhparam {{SSL_DH}};
+  
+  ### See https://developer.mozilla.org/en-US/docs/Web/Security/HTTP_strict_transport_security
+  add_header Strict-Transport-Security "max-age=2592000; includeSubdomains";
+  add_header                X-Frame-Options DENY;
+  add_header X-Content-Type-Options nosniff;
+
+  # enables server-side protection from BEAST attacks
+  # http://blog.ivanristic.com/2013/09/is-beast-still-a-threat.html
+  ssl_prefer_server_ciphers on;
+	
+  # enable session resumption to improve https performance
+  # http://vincent.bernat.im/en/blog/2011-ssl-session-reuse-rfc5077.html
+  ssl_session_cache shared:SSL:50m;
+  ssl_session_timeout 5m;
+
+  # enable ocsp stapling (mechanism by which a site can convey certificate revocation information to visitors in a privacy-preserving, scalable manner)
+  # http://blog.mozilla.org/security/2013/07/29/ocsp-stapling-in-firefox/
+  #resolver 8.8.8.8;
+  #ssl_stapling on;
+  #ssl_trusted_certificate /etc/nginx/ssl/star_forgott_com.crt;
+  
+
+  ### The public root folder of the site
+  root   /var/www/vhosts/{{SERVER_NAME}}/httpdocs;
+
+  ### The default index file is the joomla index.php
+  index index.php;
+
+  ### Where to write the site access log
+  access_log  /var/www/vhosts/{{SERVER_NAME}}/logs/access.log;
+  error_log   /var/www/vhosts/{{SERVER_NAME}}/logs/error.log;
+
+  ### include the default joomla config that is generic for all vhosts
+  include /etc/nginx/conf/joomla.conf;
+
+  
+  # Pass all .php files onto a php-fpm/php-fcgi server.
+  # see https://nealpoole.com/blog/2011/04/setting-up-php-fastcgi-and-nginx-dont-trust-the-tutorials-check-your-configuration/
+  # see http://cnedelcu.blogspot.com/2010/05/nginx-php-via-fastcgi-important.html
+  location ~ \.php$ {
+     # Zero-day exploit defense.
+     # http://forum.nginx.org/read.php?2,88845,page=3
+     # Won't work properly (404 error) if the file is not stored on this server, which is entirely possible with php-fpm/php-fcgi.
+     # Comment the 'try_files' line out if you set up php-fpm/php-fcgi on another machine.  And then cross your fingers that you won't get hacked.
+     try_files $uri =404;
+
+     #fastcgi_split_path_info ^(.+\.php)(/.+)$;
+     include fastcgi_params;
+     fastcgi_index index.php;
+     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+     fastcgi_param HTTPS $https;
+     fastcgi_intercept_errors on;
+     fastcgi_pass unix:/var/run/{{SERVER_NAME}}-fpm.sock;
+  }
+ 
+}
+
+## our http server at port 80
+#server {
+#      listen      1.2.3.4:80 default;
+#      server_name .{{SERVER_NAME}};
+	#server_name example.com www.example.com;
+#      ## redirect http to https ##
+#      rewrite        ^ https://$server_name$request_uri? permanent;
+#}
+
+server {
+  listen     80;
+  server_name {{SERVER_NAME}};
+  #server_tokens off;
+  ### The public root folder of the site
+  root   /var/www/vhosts/{{SERVER_NAME}}/httpdocs;
+
+  ### The default index file is the joomla index.php
+  index index.php;
+
+  ### Where to write the site access log
+  access_log  /var/www/vhosts/{{SERVER_NAME}}/logs/access.log;
+  error_log   /var/www/vhosts/{{SERVER_NAME}}/logs/error.log;
+
+  ### include the default joomla config that is generic for all vhosts
+  include /etc/nginx/conf/joomla.conf;
+  
+  location /administrator/ {
+    #rewrite        ^ https://$server_name$request_uri? permanent;
+    rewrite        ^ https://148.251.88.21$request_uri? permanent;
+  }
+
+  # Pass all .php files onto a php-fpm/php-fcgi server.
+  # see https://nealpoole.com/blog/2011/04/setting-up-php-fastcgi-and-nginx-dont-trust-the-tutorials-check-your-configuration/
+  # see http://cnedelcu.blogspot.com/2010/05/nginx-php-via-fastcgi-important.html
+  location ~ \.php$ {
+     # Zero-day exploit defense.
+     # http://forum.nginx.org/read.php?2,88845,page=3
+     # Won't work properly (404 error) if the file is not stored on this server, which is entirely possible with php-fpm/php-fcgi.
+     # Comment the 'try_files' line out if you set up php-fpm/php-fcgi on another machine.  And then cross your fingers that you won't get hacked.
+     try_files $uri =404;
+
+     #fastcgi_split_path_info ^(.+\.php)(/.+)$;
+     include fastcgi_params;
+     fastcgi_index index.php;
+     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+     fastcgi_intercept_errors on;
+     fastcgi_pass unix:/var/run/{{SERVER_NAME}}-fpm.sock;
+  }
+
+
+}
