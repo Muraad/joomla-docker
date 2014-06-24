@@ -1,3 +1,10 @@
+# handle non-ssl https from the nginx load balancer 
+# (we are not ssl'd on the internal network but we need https sent to fastcgi)                     
+map $http_x_forwarded_proto $https {
+    default off;
+    https on;
+}
+
 server {
   listen 443 ssl;
   server_name {{SERVER_NAME}};
@@ -115,6 +122,7 @@ server {
      fastcgi_index index.php;
      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
      fastcgi_intercept_errors on;
+     fastcgi_param HTTPS $https;
      fastcgi_pass unix:/var/run/{{SERVER_NAME}}-fpm.sock;
   }
 
