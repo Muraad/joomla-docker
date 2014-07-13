@@ -53,7 +53,7 @@ mkdir -p ${vhost_www_path}/logs
 
 # unzip the downloaded joomla tar to /var/www/vhosts/$SERVER_NAME/httpdocs
 echo "Unzipping Joomla_${JOOMLA_VERSION}-Stable-Full_Package.tar.bz2 to ${vhost_www_path}/httpdocs."
-tar xvjf Joomla_${JOOMLA_VERSION}-Stable-Full_Package.tar.bz2  -C ${vhost_www_path}/httpdocs
+tar xjf Joomla_${JOOMLA_VERSION}-Stable-Full_Package.tar.bz2  -C ${vhost_www_path}/httpdocs
 
 # set server name in vhost template
 # it will set 
